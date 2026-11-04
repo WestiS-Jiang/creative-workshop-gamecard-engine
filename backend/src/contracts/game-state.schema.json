@@ -1,0 +1,440 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creative-workshop/schema/game-state.schema.json",
+  "title": "CreativeWorkshopGameState",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "game_instance_id",
+    "genre_metadata",
+    "current_phase",
+    "time_step_config",
+    "media_assets",
+    "world_state",
+    "player_entity",
+    "dynamic_npc_network",
+    "event_engine"
+  ],
+  "properties": {
+    "game_instance_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "genre_metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "genre"
+      ],
+      "properties": {
+        "genre": {
+          "type": "string",
+          "minLength": 1
+        },
+        "theme_style": {
+          "type": "string"
+        }
+      }
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "INIT",
+        "INTRO_CINEMATIC",
+        "MAIN_LOOP",
+        "ENDING_CINEMATIC"
+      ]
+    },
+    "time_step_config": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "unit",
+        "value",
+        "source"
+      ],
+      "properties": {
+        "unit": {
+          "type": "string",
+          "enum": [
+            "hour",
+            "day",
+            "week",
+            "month"
+          ]
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "LLM_RECOMMENDED",
+            "USER_OVERRIDE"
+          ]
+        },
+        "recommendation_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "media_assets": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "bgm_tracks",
+        "intro_cinematic",
+        "ending_cinematic",
+        "character_portraits"
+      ],
+      "properties": {
+        "bgm_tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mediaAsset"
+          }
+        },
+        "intro_cinematic": {
+          "$ref": "#/$defs/optionalMediaAsset"
+        },
+        "ending_cinematic": {
+          "$ref": "#/$defs/optionalMediaAsset"
+        },
+        "character_portraits": {
+          "type": "object",
+          "description": "Map<npc_or_player_id, MediaAsset>",
+          "additionalProperties": {
+            "$ref": "#/$defs/mediaAsset"
+          }
+        }
+      }
+    },
+    "world_state": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "current_turn",
+        "time_cycle",
+        "global_factions",
+        "world_events"
+      ],
+      "properties": {
+        "current_turn": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "time_cycle": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "season",
+            "weather",
+            "time_of_day"
+          ],
+          "properties": {
+            "season": {
+              "type": "string"
+            },
+            "weather": {
+              "type": "string"
+            },
+            "time_of_day": {
+              "type": "string"
+            }
+          }
+        },
+        "global_factions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "faction_id",
+              "name",
+              "power_level",
+              "attitude_to_player"
+            ],
+            "properties": {
+              "faction_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "power_level": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "attitude_to_player": {
+                "type": "number",
+                "minimum": -100,
+                "maximum": 100
+              }
+            }
+          }
+        },
+        "world_events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "player_entity": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "biography",
+        "core_attributes",
+        "status_effects",
+        "inventory_system",
+        "equipped_gear"
+      ],
+      "properties": {
+        "biography": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "name",
+            "age",
+            "gender",
+            "origin_background"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "age": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "gender": {
+              "type": "string"
+            },
+            "origin_background": {
+              "type": "string"
+            }
+          }
+        },
+        "core_attributes": {
+          "type": "object",
+          "description": "Map<string, AttributeValue>",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "value",
+              "min",
+              "max",
+              "description"
+            ],
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "status_effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "effect_name",
+              "duration",
+              "impact_formula"
+            ],
+            "properties": {
+              "effect_name": {
+                "type": "string"
+              },
+              "duration": {
+                "type": "integer"
+              },
+              "impact_formula": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "inventory_system": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "item_id",
+              "name",
+              "category",
+              "quantity"
+            ],
+            "properties": {
+              "item_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "equipped_gear": {
+          "type": "object",
+          "description": "Map<slot, item_id>",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dynamic_npc_network": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "npc_id",
+          "name",
+          "social_role",
+          "affinity_matrix",
+          "relationship_tag",
+          "memory_flags"
+        ],
+        "properties": {
+          "npc_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "social_role": {
+            "type": "string"
+          },
+          "affinity_matrix": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "relationship_tag": {
+            "type": "string"
+          },
+          "memory_flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "event_engine": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "narrative_log",
+        "observation_data",
+        "available_actions"
+      ],
+      "properties": {
+        "narrative_log": {
+          "type": "string"
+        },
+        "observation_data": {
+          "type": "string"
+        },
+        "available_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "action_id",
+              "prompt_text",
+              "required_stats"
+            ],
+            "properties": {
+              "action_id": {
+                "type": "string"
+              },
+              "prompt_text": {
+                "type": "string"
+              },
+              "required_stats": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "mediaAsset": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "asset_id",
+        "kind",
+        "url"
+      ],
+      "properties": {
+        "asset_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "BGM",
+            "VIDEO",
+            "IMAGE",
+            "SPRITE"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "loop": {
+          "type": "boolean"
+        }
+      }
+    },
+    "optionalMediaAsset": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/mediaAsset"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}
+
